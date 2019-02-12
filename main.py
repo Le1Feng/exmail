@@ -13,7 +13,7 @@ class ACCESS_TOKEN:
         self.EmailRemind = None
         self.FunctionSetting = None
         self.SystemLog = None
-        requests.packages.urllib3.disable_warnings()
+        # requests.packages.urllib3.disable_warnings()
     
     class __token:
         def __init__(self, value):
@@ -36,7 +36,7 @@ class ACCESS_TOKEN:
             self.SystemLog = self.__token(value)
 
 class exmail:
-    '''
+    R'''
     [创建部门]
 
     requests:
@@ -66,7 +66,7 @@ class exmail:
                 del a[i]
         return a
 
-    '''
+    R'''
     [更新部门]
 
     requests:
@@ -713,18 +713,19 @@ class exmail:
         return self.ereturn(res)
 
 
-    def __init__(self, corpid , proxy = None):
+    def __init__(self, corpid , proxy = None, verify = True):
         self.corpid = corpid
         self.ACCESS_TOKEN = ACCESS_TOKEN()
         self.req_session = requests.Session()
         if (proxy):
             self.req_session.proxies = proxy
-        self.req_session.verify = False
+        if not verify:
+            self.req_session.verify = False
     
     def ereturn(self, res):
         if res['errcode'] is 0:
             return res
-        raise ExmailException('exmail request error: {}'.format(res['errmsg']))
+        raise ExmailException('exmail request error({}): {}'.format(res['errcode'] , res['errmsg']))
 
     
 
@@ -743,4 +744,84 @@ class exmail:
             raise ExmailException('Request error: {}'.format(res))
         return self
 
+    
+    def callback_server(self, token , AESkey , corpid):
+        import http.server
+        import socketserver
+        import base64
+        from urllib.parse import parse_qs
+        from hashlib import sha1
+        from Crypto.Cipher import AES
+        from socket import ntohl
+        from struct import unpack
+        PORT = 80
+
+        def getSHA1(token, timestamp, nonce, encrypt):
+                sortlist = [token, timestamp, nonce, encrypt]
+                sortlist.sort()
+                sha = sha1()
+                sha.update("".join(sortlist).encode())
+                return  sha.hexdigest()
+
+        class exmail_callback_server(http.server.BaseHTTPRequestHandler):
+            @staticmethod
+            def decrypt(text):
+                key = base64.b64decode(AESkey +"=")  
+                assert len(key) == 32
+                cryptor = AES.new(key , AES.MODE_CBC , key[:16])
+                # 使用BASE64对密文进行解码，然后AES-CBC解密
+                plain_text  = cryptor.decrypt(base64.b64decode(text))
+                # pad = ord(plain_text[-1]) 
+                pad = plain_text[-1]
+                # 去掉补位字符串 
+                #pkcs7 = PKCS7Encoder()
+                #plain_text = pkcs7.encode(plain_text)   
+                # 去除16位随机字符串
+                content = plain_text[16:-pad]
+                xml_len = ntohl(unpack("I",content[ : 4])[0])
+                xml_content = content[4 : xml_len+4] 
+                from_corpid = content[xml_len+4:]
+                if  from_corpid.decode() != corpid:
+                    return False
+                return xml_content
+            
+            @staticmethod
+            def reply(exmail_data):
+                if 'msg_signature' in exmail_data.keys():
+                    msg_signature = exmail_data['msg_signature'][0]
+                    if 'timestamp' in exmail_data.keys():
+                        timestamp = exmail_data['timestamp'][0]
+                        if 'nonce' in exmail_data.keys():
+                            nonce = exmail_data['nonce'][0]
+                            # 携带 'echostr' 则为 '验证URL有效性'
+                            if 'echostr' in exmail_data.keys():
+                                echostr = exmail_data['echostr'][0]
+                                signature = getSHA1(token, timestamp, nonce, echostr)
+                                if signature == msg_signature:
+                                    reply_str = exmail_callback_server.decrypt(echostr)
+                                    return reply_str
+                                    
+                return False
+
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                exmail_data = parse_qs(self.path[2:])
+                reply_str = self.reply(exmail_data)
+                if reply_str is not False:
+                    self.wfile.write(reply_str)
+            
+            def do_POST(self):
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                exmail_data = parse_qs(self.path[2:])
+                reply_str = self.reply(exmail_data)
+                if reply_str is not False:
+                    self.wfile.write(reply_str)
+
+        with socketserver.TCPServer(("", PORT), exmail_callback_server) as httpd:
+            print("serving at port", PORT)
+            httpd.serve_forever()
 

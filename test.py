@@ -1,5 +1,5 @@
 from main import exmail
-import conf
+import conf # 参考 conf.default.py 模板
 import time
 
 _proxy = {
@@ -40,20 +40,20 @@ def test_1_1():
 def test_1_2():
     print ('通讯录管理 - 管理成员', '测试开始')
     name = 'user'
-    res = a.user_create('user@domin.com' , 
+    res = a.user_create('user@{}'.format(conf.domin) , 
                         'user' , 
                         [1] , 
                         '!@k;lk1;1;L' , 
                         '测试员' , 
-                        slaves=['zhangsan@domin.com', 'zhangsan@domin.com'] ,
+                        slaves=['zhangsan@{}'.format(conf.domin), 'zhangsan@{}'.format(conf.domin)] ,
                         mobile='15112431243'
                         )
     print ('创建成员 {} 成功 '.format(name))
 
-    res = a.user_update('user@domin.com' , 'user_update' , [1] , '测试经理')
+    res = a.user_update('user@{}'.format(conf.domin) , 'user_update' , [1] , '测试经理')
     print ('更新成员 {} 成功 '.format(name))
 
-    res = a.user_get('user@domin.com')
+    res = a.user_get('user@{}'.format(conf.domin))
     print ('获取成员成功：\n{}'.format(res))
 
     res = a.user_simplelist(1, 0)
@@ -62,33 +62,33 @@ def test_1_2():
     res = a.user_list(1, 0)
     print ('获取部门成员（详情）：\n{}'.format(res['userlist']))
 
-    res = a.user_batchcheck(['user@domin.com' , 'user2@domin.com'])
+    res = a.user_batchcheck(['user@{}'.format(conf.domin) , 'user2@{}'.format(conf.domin)])
     print ('批量检查帐号成功：\n{}'.format(res['list']))
 
-    res = a.user_delete('user@domin.com')
+    res = a.user_delete('user@{}'.format(conf.domin))
     print ('删除成员 {} 成功'.format(name))
 
 def test_1_3():
     print ('通讯录管理 - 管理邮件群组', '测试开始')
 
-    user1 = 'user1@domin.com'
-    user2 = 'user2@domin.com'
+    user1 = 'user1@{}'.format(conf.domin)
+    user2 = 'user2@{}'.format(conf.domin)
     a.user_create(user1 , 'user1' , [1] , password = '!@k;lk1;1;L')
     a.user_create(user2 , 'user2' , [1] , password = '!@k;lk1;1;L')
     print ('添加成员 {} {} 成功'.format(user1 , user2))
     print (a.user_simplelist(1 , 1)['userlist'])
 
-    res = a.group_create('group@domin.com' , 'group' , 1 , [user1, user2])
+    res = a.group_create('group@{}'.format(conf.domin) , 'group' , 1 , [user1, user2])
     print ('创建邮件群组 {}成功'.format('group'))
 
-    res = a.group_update('group@domin.com' , 'group_update', allow_type = 0)
+    res = a.group_update('group@{}'.format(conf.domin) , 'group_update', allow_type = 0)
     print ('更新邮件群组 {}成功'.format('group'))
 
-    res = a.group_get('group@domin.com')
+    res = a.group_get('group@{}'.format(conf.domin))
     print ('获取邮件群组信息成功：\n{}'.format(res))
 
-    res = a.group_delete('group@domin.com')
-    print ('删除邮件群组 {}成功'.format('group@domin.com'))
+    res = a.group_delete('group@{}'.format(conf.domin))
+    print ('删除邮件群组 {}成功'.format('group@{}'.format(conf.domin)))
 
     a.user_delete(user1)
     a.user_delete(user2)
@@ -97,7 +97,7 @@ def test_1_3():
 def test_2():
     print ('功能设置', '测试开始')
 
-    user = 'test_2@domin.com'
+    user = 'test_2@{}'.format(conf.domin)
     a.user_create(user , 'test_user' , [1] , password = '!@k;lk1;1;L')
     print ('添加成员 {} 成功：\n{}'.format(user , a.user_simplelist(1 , 1)['userlist']))
 
@@ -118,11 +118,11 @@ def test_2():
 def test_3():
     print ('系统日志', '测试开始')
 
-    user = 'test_3@domin.com'
+    user = 'test_3@{}'.format(conf.domin)
     a.user_create(user , 'test_user' , [1] , password = '!@k;lk1;1;L')
     print ('添加成员 {} 成功：\n{}'.format(user , a.user_simplelist(1 , 1)['userlist']))
 
-    res = a.log_mailstatus('domin.com' , '2019-02-08' , time.strftime("%Y-%m-%d", time.localtime(time.time()-86400)) )
+    res = a.log_mailstatus('{}'.format(conf.domin) , '2019-02-08' , time.strftime("%Y-%m-%d", time.localtime(time.time()-86400)) )
     print ('查询邮件概况成功：\n{}'.format(res))
 
     res = a.log_mail('2019-02-08' , time.strftime("%Y-%m-%d", time.localtime(time.time()-86400)), 0 , user)
@@ -143,7 +143,7 @@ def test_3():
 def test_4():
     print ('获取邮件未读数', '测试开始')
 
-    user = 'test_4@domin.com'
+    user = 'test_4@{}'.format(conf.domin)
     a.user_create(user , 'test_user' , [1] , password = '!@k;lk1;1;L')
     print ('添加成员 {} 成功：\n{}'.format(user , a.user_simplelist(1 , 1)['userlist']))
 
@@ -156,7 +156,7 @@ def test_4():
 def test_5():
     print ('获取登录企业邮的url', '测试开始')
 
-    user = 'test_5@domin.com'
+    user = 'test_5@{}'.format(conf.domin)
     a.user_create(user , 'test_user' , [1] , password = '!@k;lk1;1;L')
     print ('添加成员 {} 成功：\n{}'.format(user , a.user_simplelist(1 , 1)['userlist']))
 
@@ -166,6 +166,12 @@ def test_5():
     
     # a.user_delete(user)
     # print ('删除 {} 成功'.format(user))
+
+def test_callback():
+    print ('回调模式' , '测试开始')
+    a.callback_server(conf.token,conf.AESkey,conf.corpid)
+test_callback()
+exit()
 test_1_1()
 test_1_2()
 test_1_3()

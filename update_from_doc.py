@@ -70,9 +70,9 @@ def del_none(a):
         # 创建文档字典一级下列表
         exmail_doc[start_strs[num]] = []
         # 获取一级下列表的函数
-        content = re.search(start_strs[num] + '[\s\S]+?catalog_level_1', res_doc).group(0)
+        content = re.search(start_strs[num] + r'[\s\S]+?catalog_level_1', res_doc).group(0)
         # 遍历API的 名称 和 ID
-        for i in re.findall('data-doc="(\d+) "\s+"\s+data-parent="\d+">\s+<.+?> (.+?) ' , content):
+        for i in re.findall(r'data-doc="(\d+) "\s+"\s+data-parent="\d+">\s+<.+?> (.+?) ' , content):
             # 跳过回调模式的API
             if '回调模式' in i[1]:
                 continue
@@ -80,16 +80,16 @@ def del_none(a):
             url = 'https://exmail.qq.com/qy_mng_logic/doc/read/' + i[0]
             res = req_session.get(url=url, headers=headers).json()
             if res['data']['content'].count('pre') is 4:
-                api_pre = re.search('pre>([\s\S]+?)<', res['data']['content']).group(1).replace('fuzzy": 0,','fuzzy": 0')
+                api_pre = re.search(r'pre>([\s\S]+?)<', res['data']['content']).group(1).replace('fuzzy": 0,','fuzzy": 0')
             else:
                 api_pre = None
-            api_method = re.search('请求方式：\s+(GET|POST)', res['data']['content']).group(1)
-            api_url = re.search('请求地址：\s+(.+?)\?', res['data']['content']).group(1)
-            api_par_des = re.findall('tbody>[\s\S]+?</tbody', res['data']['content'])
+            api_method = re.search(r'请求方式：\s+(GET|POST)', res['data']['content']).group(1)
+            api_url = re.search(r'请求地址：\s+(.+?)\?', res['data']['content']).group(1)
+            api_par_des = re.findall(r'tbody>[\s\S]+?</tbody', res['data']['content'])
             print (api_method , i[1])
             # 函数参数描述段包括 请求参数、返回参数，分别提取格式化
             if len(api_par_des) is 2:
-                reres = re.findall('td>(.+?)<' , api_par_des[0])
+                reres = re.findall(r'td>(.+?)<' , api_par_des[0])
                 api_requests = []
                 for a in range(0 , len(reres) , 3):
                     par = {}
