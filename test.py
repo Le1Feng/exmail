@@ -1,4 +1,4 @@
-from main import exmail
+from main import exmail , exmail_callback_server_obj
 import conf # 参考 conf.default.py 模板
 import time
 
@@ -167,9 +167,17 @@ def test_5():
     # a.user_delete(user)
     # print ('删除 {} 成功'.format(user))
 
+class exmail_server(exmail_callback_server_obj):
+    def url_verity(self):
+        print('test url_verity success')
+    
+    def mail_receive(self, data):
+        print ('receive a mail : \n{}'.format(data))
+
 def test_callback():
     print ('回调模式' , '测试开始')
-    a.callback_server(conf.token,conf.AESkey,conf.corpid)
+    ser_obj = exmail_server(conf.token, conf.AESkey , conf.corpid)
+    a.callback_server(ser_obj)
 test_callback()
 exit()
 test_1_1()
