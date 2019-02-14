@@ -1,6 +1,39 @@
 import requests
 import json
-from setting import URL
+
+class URL:
+    ACCESS_TOKEN = 'https://api.exmail.qq.com/cgi-bin/gettoken'
+    # 通讯录管理 
+    DEPARTMENT_CREATE = "https://api.exmail.qq.com/cgi-bin/department/create"
+    DEPARTMENT_UPDATE = "https://api.exmail.qq.com/cgi-bin/department/update"
+    DEPARTMENT_DELETE = "https://api.exmail.qq.com/cgi-bin/department/delete"
+    DEPARTMENT_LIST = "https://api.exmail.qq.com/cgi-bin/department/list"
+    DEPARTMENT_SEARCH = "https://api.exmail.qq.com/cgi-bin/department/search"
+    USER_CREATE = "https://api.exmail.qq.com/cgi-bin/user/create"
+    USER_UPDATE = "https://api.exmail.qq.com/cgi-bin/user/update"
+    USER_DELETE = "https://api.exmail.qq.com/cgi-bin/user/delete"
+    USER_GET = "https://api.exmail.qq.com/cgi-bin/user/get"
+    USER_SIMPLELIST = "https://api.exmail.qq.com/cgi-bin/user/simplelist"
+    USER_LIST = "https://api.exmail.qq.com/cgi-bin/user/list"
+    USER_BATCHCHECK = "https://api.exmail.qq.com/cgi-bin/user/batchcheck"
+    GROUP_CREATE = "https://api.exmail.qq.com/cgi-bin/group/create"
+    GROUP_UPDATE = "https://api.exmail.qq.com/cgi-bin/group/update"
+    GROUP_DELETE = "https://api.exmail.qq.com/cgi-bin/group/delete"
+    GROUP_GET = "https://api.exmail.qq.com/cgi-bin/group/get"
+    # 功能设置 
+    USEROPTION_GET = "https://api.exmail.qq.com/cgi-bin/useroption/get"
+    USEROPTION_UPDATE = "https://api.exmail.qq.com/cgi-bin/useroption/update"
+    # 系统日志 
+    LOG_MAILSTATUS = "https://api.exmail.qq.com/cgi-bin/log/mailstatus"
+    LOG_MAIL = "https://api.exmail.qq.com/cgi-bin/log/mail"
+    LOG_LOGIN = "https://api.exmail.qq.com/cgi-bin/log/login"
+    LOG_BATCHJOB = "https://api.exmail.qq.com/cgi-bin/log/batchjob"
+    LOG_OPERATION = "https://api.exmail.qq.com/cgi-bin/log/operation"
+    # 新邮件提醒 
+    MAIL_NEWCOUNT = "https://api.exmail.qq.com/cgi-bin/mail/newcount"
+    # 单点登录 
+    SERVICE_GET_LOGIN_URL = "https://api.exmail.qq.com/cgi-bin/service/get_login_url"
+
 
 class ExmailException(Exception):
     def __init__(self, err):
@@ -804,7 +837,7 @@ class exmail:
                             signature = getSHA1(serobj.token, timestamp, nonce, data_encrypt)
                             if signature == msg_signature:
                                 rec_plaintext = exmail_callback_server.decrypt(data_encrypt)
-                                return rec_plaintext.decode()
+                                return rec_plaintext
                 return False 
 
 
