@@ -840,7 +840,14 @@ class exmail:
                                 return rec_plaintext
                 return False 
 
-
+            # Header中的server版本
+            def version_string(self):
+                return 'nginx/1.15.7'
+            
+            def log_message(self , *args, **kwargs):
+                # 记录HTTP访问日志
+                pass
+                
             def do_GET(self):
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
